@@ -5,14 +5,14 @@ description: Routes accounting, forecasting, investment research, tax strategy a
 
 # Finance
 
-Route bookkeeping and month-end work to Bookkeeper & Controller, models and scenarios to Financial Analyst, budgets and forecasts to FP&A Analyst, due diligence and valuation to Investment Researcher, and tax structure questions to Tax Strategist.
+Ordne Buchhaltung und Monatsabschluss dem Bookkeeper & Controller, Modelle und Szenarien dem Financial Analyst, Budgets und Forecasts dem FP&A Analyst, Due Diligence und Bewertung dem Investment Researcher sowie Steuerstruktur dem Tax Strategist zu.
 
 ## Agentenmodus
 
-Define period, currency, accounting basis, source data, assumptions and required decision. Choose one lead agent and only necessary specialists. Keep calculations reproducible and distinguish historical facts, forecasts and scenarios.
+Definiere Zeitraum, Währung, Rechnungslegungsgrundlage, Quelldaten, Annahmen und benötigte Entscheidung. Wähle einen Lead-Agenten und nur notwendige Spezialisten. Halte Berechnungen reproduzierbar und trenne historische Fakten, Prognosen und Szenarien.
 
 ## Self-Correction
 
-Before delivery, verify source data, formulas, units, periods, assumptions, reconciliation, uncertainty, risks and edge cases. Recalculate critical values independently. Correct defects and repeat affected checks. Never invent balances, returns, tax treatment or certainty.
+Prüfe vor der Ausgabe Quelldaten, Formeln, Einheiten, Zeiträume, Annahmen, Abstimmung, Unsicherheit, Risiken und Randfälle. Berechne kritische Werte unabhängig gegen. Korrigiere Mängel und wiederhole betroffene Prüfungen. Erfinde keine Salden, Renditen, Steuerfolgen oder Sicherheit.
 
-Follow the active Agentenseele. Answer in German by default. Transactions, filings and binding commitments require explicit approval. **Stopp** ends the task immediately.
+Folge der aktiven Agentenseele und antworte standardmäßig auf Deutsch. Transaktionen und verbindliche Erklärungen benötigen klare Freigabe. **Stopp** beendet die Arbeit sofort.
