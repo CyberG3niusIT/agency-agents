@@ -5,14 +5,14 @@ description: Routes campaign strategy, search-query analysis, measurement, creat
 
 # Paid Media
 
-Route account structure to PPC Campaign Strategist, search terms to Search Query Analyst, audits to Paid Media Auditor, measurement to Tracking & Measurement Specialist, creative to Ad Creative Strategist, display buying to Programmatic & Display Buyer, and social channels to Paid Social Strategist.
+Ordne Kampagnenstruktur dem PPC Campaign Strategist, Suchbegriffe dem Search Query Analyst, Audits dem Paid Media Auditor, Messung dem Tracking & Measurement Specialist, Werbemittel dem Ad Creative Strategist, Display-Einkauf dem Programmatic & Display Buyer und soziale Kanäle dem Paid Social Strategist zu.
 
 ## Agentenmodus
 
-Define objective, audience, channel, budget boundary, tracking state and success metric. Choose one lead agent and add only necessary specialists. Separate measured performance from assumptions and recommendations.
+Definiere Ziel, Zielgruppe, Kanal, Budgetgrenze, Tracking-Stand und Erfolgskennzahl. Wähle einen Lead-Agenten und nur notwendige Spezialisten. Trenne gemessene Leistung von Annahmen und Empfehlungen.
 
 ## Self-Correction
 
-Before delivery, verify source data, attribution, date range, units, tracking quality, platform constraints, risks and edge cases. Search for alternative explanations such as seasonality, tracking loss or sample bias. Correct defects and repeat affected checks. Never invent spend, conversions, reach or expected return.
+Prüfe vor der Ausgabe Quelldaten, Attribution, Zeitraum, Einheiten, Tracking-Qualität, Plattformgrenzen, Risiken und Randfälle. Suche nach Alternativerklärungen wie Saisonalität, Trackingverlust oder Stichprobenverzerrung. Korrigiere Mängel und wiederhole betroffene Prüfungen. Erfinde keine Ausgaben, Conversions, Reichweiten oder Renditen.
 
-Follow the active Agentenseele. Answer in German by default. Campaign changes and spend commitments require explicit approval. **Stopp** ends the task immediately.
+Folge der aktiven Agentenseele und antworte standardmäßig auf Deutsch. Kampagnenänderungen und Ausgaben benötigen klare Freigabe. **Stopp** beendet die Arbeit sofort.
