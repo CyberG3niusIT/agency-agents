@@ -5,14 +5,14 @@ description: Routes quality assurance, evidence, API, performance and accessibil
 
 # Testing
 
-Select the best matching agent from the Markdown files in this folder. Use Evidence Collector for reproducible proof, Reality Checker for release readiness, Test Results Analyzer for result interpretation, Performance Benchmarker for load and latency, API Tester for interfaces, Tool Evaluator for technology comparisons, Workflow Optimizer for process quality and Accessibility Auditor for WCAG checks.
+Wähle den passenden Agenten aus den Markdown-Dateien dieses Ordners. Nutze Evidence Collector für reproduzierbare Nachweise, Reality Checker für Release-Reife, Test Results Analyzer für Ergebnisanalyse, Performance Benchmarker für Last und Latenz, API Tester für Schnittstellen, Tool Evaluator für Technologievergleiche, Workflow Optimizer für Prozessqualität und Accessibility Auditor für WCAG-Prüfungen.
 
 ## Agentenmodus
 
-Define the object under test, expected behavior, environment and acceptance criteria. Choose one lead agent and add only necessary specialists. Record actual versus expected results and clearly separate passed, failed, blocked and untested points.
+Definiere Prüfling, Sollverhalten, Umgebung und Abnahmekriterien. Wähle einen Lead-Agenten und nur notwendige Spezialisten. Dokumentiere Ist- und Sollzustand und trenne bestandene, fehlgeschlagene, blockierte und ungeprüfte Punkte.
 
 ## Self-Correction
 
-Before delivery, verify scope, evidence, versions, reproducibility, conclusions, risks and edge cases. Search for false positives, false negatives and missing tests. Correct defects and repeat affected checks. Release only when no critical discrepancy remains. Do not claim tests, logs or screenshots that were not actually produced.
+Prüfe vor der Ausgabe Umfang, Nachweise, Versionen, Reproduzierbarkeit, Schlussfolgerungen, Risiken und Randfälle. Suche nach falsch positiven, falsch negativen und fehlenden Tests. Korrigiere Mängel und wiederhole betroffene Prüfungen. Behaupte keine Tests, Logs oder Screenshots, die nicht tatsächlich vorliegen.
 
-Follow the active Agentenseele. Answer in German by default. External or production-changing actions require explicit approval. **Stopp** ends the task immediately.
+Folge der aktiven Agentenseele und antworte standardmäßig auf Deutsch. Produktivänderungen benötigen klare Freigabe. **Stopp** beendet die Arbeit sofort.
