@@ -1,0 +1,148 @@
+{
+  "name": "AquaPilot — Flyer Creative Harness",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-1200, 0],
+      "id": "fd5234a7-172f-54bb-972f-a39fe32e614b",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const stages = [\n  { stage_id: 'campaign_lead', logical_role: 'Campaign Lead', agent_path: 'project-management/project-management-studio-producer.md', task: 'Create the authoritative campaign brief for an AquaPilot flyer. Define the communication objective, decision target, desired reader action, constraints, success criteria, unresolved assumptions, and what every downstream specialist must preserve. Do not invent product facts. Return a JSON object with keys: summary, objective, audience_hypotheses, desired_action, constraints, success_criteria, open_questions, downstream_guardrails.' },\n  { stage_id: 'product_expert', logical_role: 'AquaPilot Product Expert', agent_path: 'product/product-manager.md', task: 'Act as the product-truth layer. From project_context and the campaign brief only, extract what AquaPilot is, what problems it demonstrably addresses, features/capabilities that are actually supported, evidence available, claims that must not be made, and missing product facts. Separate facts from assumptions. Return JSON with keys: product_definition, verified_capabilities, customer_problems, evidence, prohibited_or_unverified_claims, missing_information, product_message_guardrails.' },\n  { stage_id: 'audience_researcher', logical_role: 'Audience Researcher', agent_path: 'design/design-ux-researcher.md', task: 'Analyze the intended flyer audience as a decision-making user population. Identify jobs-to-be-done, pains, motivations, objections, trust requirements, domain language, reading context, and likely attention constraints. Treat unsupported audience characteristics as hypotheses, not facts. Return JSON with keys: audience_segments, jobs_to_be_done, pains, motivations, objections, trust_requirements, language_patterns, attention_context, hypotheses_to_validate.' },\n  { stage_id: 'positioning_strategist', logical_role: 'Positioning Strategist', agent_path: 'specialized/business-strategist.md', task: 'Develop AquaPilot positioning from the verified product truth and audience analysis. Explicitly compare the message against the status quo and plausible alternatives without inventing competitor facts. Define the central value proposition, differentiation, category framing, proof hierarchy, and the single message that must survive a five-second scan. Return JSON with keys: category_frame, status_quo_problem, value_proposition, differentiation, proof_hierarchy, five_second_message, positioning_risks.' },\n  { stage_id: 'behavioral_marketing', logical_role: 'Behavioral Marketing Specialist', agent_path: 'product/product-behavioral-nudge-engine.md', task: 'Design an ethical persuasion framework for the flyer. Specify attention sequence, motivation triggers, uncertainty reduction, social/proof requirements, cognitive load limits, and CTA framing. Reject dark patterns, false urgency, fear manipulation, or unsupported authority cues. Return JSON with keys: attention_sequence, persuasion_principles, trust_builders, friction_reducers, cognitive_load_rules, cta_psychology, forbidden_tactics.' },\n  { stage_id: 'conversion_copywriter', logical_role: 'Conversion Copywriter', agent_path: 'marketing/marketing-content-creator.md', task: 'Write the flyer copy architecture using only verified claims. Produce one primary headline, one subheadline, concise benefit blocks, proof/support copy, objection-handling microcopy, CTA, QR-code microcopy, and optional reverse-side copy. Prioritize clarity and conversion over slogans. Return JSON with keys: headline, subheadline, benefit_blocks, proof_copy, objection_microcopy, cta, qr_microcopy, reverse_side_copy, claims_used.' },\n  { stage_id: 'information_architect', logical_role: 'Information Architect', agent_path: 'design/design-ux-architect.md', task: 'Transform the approved copy into a flyer information hierarchy. Specify front/back zones, scan order, grouping, progressive disclosure, hierarchy levels, whitespace requirements, CTA location, QR placement, and what must be omitted to prevent overload. Return JSON with keys: page_structure, scan_order, hierarchy_levels, content_groups, whitespace_rules, cta_placement, qr_placement, omit_or_defer.' },\n  { stage_id: 'art_director', logical_role: 'Art Director', agent_path: 'design/design-brand-guardian.md', task: 'Define the visual direction for the AquaPilot flyer while preserving brand consistency. Specify visual concept, typography direction, color usage rules, imagery style, iconography, brand signals, credibility cues, and anti-patterns. Do not fabricate brand assets that are not supplied. Return JSON with keys: visual_concept, typography_direction, color_rules, imagery_direction, iconography, brand_signals, credibility_cues, anti_patterns.' },\n  { stage_id: 'graphic_designer', logical_role: 'Graphic Designer', agent_path: 'design/design-visual-storyteller.md', task: 'Convert the information architecture and art direction into a production-ready flyer design specification. Define precise layout zones, relative dimensions, visual emphasis, asset requirements, image crop guidance, icon usage, typographic scale relationships, and front/back composition. The result must be implementable in Canva, Adobe Express/InDesign, SVG, or print HTML. Return JSON with keys: format, front_layout, back_layout, layout_grid, visual_emphasis, asset_manifest, typography_scale, implementation_notes.' },\n  { stage_id: 'red_team_skeptical_buyer', logical_role: 'Red Team / Skeptical Buyer', agent_path: 'design/design-persona-walkthrough.md', task: 'Attack the proposed flyer from the perspective of a skeptical real buyer. Simulate the first 1 second, 5 seconds, 15 seconds, and full-read reactions. Identify confusion, disbelief, weak claims, missing proof, visual friction, reasons to discard the flyer, and what would make the buyer act. Do not be polite. Return JSON with keys: one_second_reaction, five_second_reaction, fifteen_second_reaction, full_read_reaction, credibility_failures, conversion_blockers, required_changes, pass_condition.' },\n  { stage_id: 'fact_production_qa', logical_role: 'Fact + Production QA', agent_path: 'testing/testing-reality-checker.md', task: 'Perform the final release gate. Cross-check every proposed claim against project_context/product_truth, verify internal consistency across copy/layout, flag unsupported statements, check that the CTA and QR destination are defined, and assess whether the design specification is production-ready. Do not certify anything lacking evidence. Return JSON with keys: verdict, supported_claims, unsupported_claims, inconsistencies, missing_assets, production_blockers, required_fixes, release_checklist.' }\n];\n\nreturn [{\n  json: {\n    agent_runner_workflow_id: 'REPLACE_WITH_IMPORTED_AGENT_RUNNER_WORKFLOW_ID',\n    source_ref: '1c9bee5e6a3557355820726b1dc4e2549d566654',\n    model: 'openrouter/free',\n    temperature: 0.2,\n    max_tokens: 5000,\n    run_id: `aquapilot-flyer-${Date.now()}`,\n    project_context: {\n      product: 'AquaPilot',\n      purpose: 'Create a highly persuasive, factually defensible professional flyer.',\n      verified_facts: ['REPLACE: add only verified AquaPilot facts here'],\n      target_audience: 'REPLACE: primary decision-maker / audience',\n      desired_action: 'REPLACE: e.g. open demo, book call, scan QR',\n      landing_url: 'https://aquapilot.wima-edv.de/',\n      demo_url: 'https://aquapilot-demo.wima-edv.de/',\n      print_format: 'A4, portrait, two-sided',\n      supplied_assets: [],\n      forbidden_claims: ['No invented metrics', 'No invented testimonials', 'No unsupported compliance/certification claims']\n    },\n    stages_config: stages,\n    working_document: { project: 'AquaPilot', artifact: 'flyer', created_at: new Date().toISOString(), stages: {} }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-980, 0],
+      "id": "a8189c0b-cbb4-55e1-aca5-6e19c8e67a52",
+      "name": "Configure AquaPilot Flyer Run"
+    },
+    {
+      "parameters": {"jsCode": "const i=$input.first().json; return [{json:{...i,...i.stages_config[0]}}];"},
+      "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-720,0],
+      "id": "0f060f9f-51f3-585a-96a4-8fc282d1382d", "name": "01 Prepare — Campaign Lead"
+    },
+    {
+      "parameters": {"workflowId":{"__rl":true,"value":"={{ $('Configure AquaPilot Flyer Run').item.json.agent_runner_workflow_id }}","mode":"id"},"workflowInputs":{"mappingMode":"defineBelow","value":{},"matchingColumns":[],"schema":[],"attemptToConvertTypes":false,"convertFieldsToString":true},"mode":"once","options":{"waitForSubWorkflow":true}},
+      "type":"n8n-nodes-base.executeWorkflow","typeVersion":1.3,"position":[-500,0],"id":"1b642d2d-6611-5800-b09f-98919856f694","name":"01 Run — Studio Producer"
+    },
+    {
+      "parameters":{"jsCode":"const i=$input.first().json; return [{json:{...i,...i.stages_config[1]}}];"},
+      "type":"n8n-nodes-base.code","typeVersion":2,"position":[-220,0],"id":"6d6814c4-32d1-5fb2-8cdb-c0bcad90c621","name":"02 Prepare — AquaPilot Product Expert"
+    },
+    {
+      "parameters":{"workflowId":{"__rl":true,"value":"={{ $('Configure AquaPilot Flyer Run').item.json.agent_runner_workflow_id }}","mode":"id"},"workflowInputs":{"mappingMode":"defineBelow","value":{},"matchingColumns":[],"schema":[],"attemptToConvertTypes":false,"convertFieldsToString":true},"mode":"once","options":{"waitForSubWorkflow":true}},
+      "type":"n8n-nodes-base.executeWorkflow","typeVersion":1.3,"position":[0,0],"id":"cb3e11fa-f899-54a7-b275-264fa4fd5703","name":"02 Run — Product Manager"
+    },
+    {
+      "parameters":{"jsCode":"const i=$input.first().json; return [{json:{...i,...i.stages_config[2]}}];"},
+      "type":"n8n-nodes-base.code","typeVersion":2,"position":[280,0],"id":"e2533f3b-7bd8-5d54-936e-2e61079dcffe","name":"03 Prepare — Audience Researcher"
+    },
+    {
+      "parameters":{"workflowId":{"__rl":true,"value":"={{ $('Configure AquaPilot Flyer Run').item.json.agent_runner_workflow_id }}","mode":"id"},"workflowInputs":{"mappingMode":"defineBelow","value":{},"matchingColumns":[],"schema":[],"attemptToConvertTypes":false,"convertFieldsToString":true},"mode":"once","options":{"waitForSubWorkflow":true}},
+      "type":"n8n-nodes-base.executeWorkflow","typeVersion":1.3,"position":[500,0],"id":"0d18f252-a532-54b1-a20d-dd7ef5728e6d","name":"03 Run — UX Researcher"
+    },
+    {
+      "parameters":{"jsCode":"const i=$input.first().json; return [{json:{...i,...i.stages_config[3]}}];"},
+      "type":"n8n-nodes-base.code","typeVersion":2,"position":[780,0],"id":"c2db80af-5d05-54c3-9682-0e13a295fb10","name":"04 Prepare — Positioning Strategist"
+    },
+    {
+      "parameters":{"workflowId":{"__rl":true,"value":"={{ $('Configure AquaPilot Flyer Run').item.json.agent_runner_workflow_id }}","mode":"id"},"workflowInputs":{"mappingMode":"defineBelow","value":{},"matchingColumns":[],"schema":[],"attemptToConvertTypes":false,"convertFieldsToString":true},"mode":"once","options":{"waitForSubWorkflow":true}},
+      "type":"n8n-nodes-base.executeWorkflow","typeVersion":1.3,"position":[1000,0],"id":"170c3a7a-b119-58bd-9fbe-3f9062a90c84","name":"04 Run — Business Strategist"
+    },
+    {
+      "parameters":{"jsCode":"const i=$input.first().json; return [{json:{...i,...i.stages_config[4]}}];"},
+      "type":"n8n-nodes-base.code","typeVersion":2,"position":[1280,0],"id":"0198c720-c55c-53bc-9ce2-9aa778c20fd6","name":"05 Prepare — Behavioral Marketing Specialist"
+    },
+    {
+      "parameters":{"workflowId":{"__rl":true,"value":"={{ $('Configure AquaPilot Flyer Run').item.json.agent_runner_workflow_id }}","mode":"id"},"workflowInputs":{"mappingMode":"defineBelow","value":{},"matchingColumns":[],"schema":[],"attemptToConvertTypes":false,"convertFieldsToString":true},"mode":"once","options":{"waitForSubWorkflow":true}},
+      "type":"n8n-nodes-base.executeWorkflow","typeVersion":1.3,"position":[1500,0],"id":"606e4032-0be4-5643-bdce-1446635d38ce","name":"05 Run — Behavioral Nudge Engine"
+    },
+    {
+      "parameters":{"jsCode":"const i=$input.first().json; return [{json:{...i,...i.stages_config[5]}}];"},
+      "type":"n8n-nodes-base.code","typeVersion":2,"position":[1780,0],"id":"bc6e56b5-7665-599d-9ad8-31b4ad871a8b","name":"06 Prepare — Conversion Copywriter"
+    },
+    {
+      "parameters":{"workflowId":{"__rl":true,"value":"={{ $('Configure AquaPilot Flyer Run').item.json.agent_runner_workflow_id }}","mode":"id"},"workflowInputs":{"mappingMode":"defineBelow","value":{},"matchingColumns":[],"schema":[],"attemptToConvertTypes":false,"convertFieldsToString":true},"mode":"once","options":{"waitForSubWorkflow":true}},
+      "type":"n8n-nodes-base.executeWorkflow","typeVersion":1.3,"position":[2000,0],"id":"652df9b6-c9d6-50cf-83f5-47dae49a66c7","name":"06 Run — Content Creator"
+    },
+    {
+      "parameters":{"jsCode":"const i=$input.first().json; return [{json:{...i,...i.stages_config[6]}}];"},
+      "type":"n8n-nodes-base.code","typeVersion":2,"position":[2280,0],"id":"15d22e16-f717-5b93-b481-2d122de0af00","name":"07 Prepare — Information Architect"
+    },
+    {
+      "parameters":{"workflowId":{"__rl":true,"value":"={{ $('Configure AquaPilot Flyer Run').item.json.agent_runner_workflow_id }}","mode":"id"},"workflowInputs":{"mappingMode":"defineBelow","value":{},"matchingColumns":[],"schema":[],"attemptToConvertTypes":false,"convertFieldsToString":true},"mode":"once","options":{"waitForSubWorkflow":true}},
+      "type":"n8n-nodes-base.executeWorkflow","typeVersion":1.3,"position":[2500,0],"id":"6cde2c1f-e525-512e-a744-5be84b8201a8","name":"07 Run — UX Architect"
+    },
+    {
+      "parameters":{"jsCode":"const i=$input.first().json; return [{json:{...i,...i.stages_config[7]}}];"},
+      "type":"n8n-nodes-base.code","typeVersion":2,"position":[2780,0],"id":"6e386ee4-7e34-5c47-9959-ab578389c125","name":"08 Prepare — Art Director"
+    },
+    {
+      "parameters":{"workflowId":{"__rl":true,"value":"={{ $('Configure AquaPilot Flyer Run').item.json.agent_runner_workflow_id }}","mode":"id"},"workflowInputs":{"mappingMode":"defineBelow","value":{},"matchingColumns":[],"schema":[],"attemptToConvertTypes":false,"convertFieldsToString":true},"mode":"once","options":{"waitForSubWorkflow":true}},
+      "type":"n8n-nodes-base.executeWorkflow","typeVersion":1.3,"position":[3000,0],"id":"e3899550-21fd-54ce-9444-051a29bce1dd","name":"08 Run — Brand Guardian"
+    },
+    {
+      "parameters":{"jsCode":"const i=$input.first().json; return [{json:{...i,...i.stages_config[8]}}];"},
+      "type":"n8n-nodes-base.code","typeVersion":2,"position":[3280,0],"id":"dedd54c7-f025-52a9-b3ba-8f80fa1e1a48","name":"09 Prepare — Graphic Designer"
+    },
+    {
+      "parameters":{"workflowId":{"__rl":true,"value":"={{ $('Configure AquaPilot Flyer Run').item.json.agent_runner_workflow_id }}","mode":"id"},"workflowInputs":{"mappingMode":"defineBelow","value":{},"matchingColumns":[],"schema":[],"attemptToConvertTypes":false,"convertFieldsToString":true},"mode":"once","options":{"waitForSubWorkflow":true}},
+      "type":"n8n-nodes-base.executeWorkflow","typeVersion":1.3,"position":[3500,0],"id":"0072668c-b54c-5e7c-8d76-b1af421fac80","name":"09 Run — Visual Storyteller"
+    },
+    {
+      "parameters":{"jsCode":"const i=$input.first().json; return [{json:{...i,...i.stages_config[9]}}];"},
+      "type":"n8n-nodes-base.code","typeVersion":2,"position":[3780,0],"id":"09141950-ca88-59c8-9b93-9cb5fbbb426c","name":"10 Prepare — Red Team / Skeptical Buyer"
+    },
+    {
+      "parameters":{"workflowId":{"__rl":true,"value":"={{ $('Configure AquaPilot Flyer Run').item.json.agent_runner_workflow_id }}","mode":"id"},"workflowInputs":{"mappingMode":"defineBelow","value":{},"matchingColumns":[],"schema":[],"attemptToConvertTypes":false,"convertFieldsToString":true},"mode":"once","options":{"waitForSubWorkflow":true}},
+      "type":"n8n-nodes-base.executeWorkflow","typeVersion":1.3,"position":[4000,0],"id":"609af23a-e83a-5a86-a162-c43c2c257865","name":"10 Run — Persona Walkthrough Specialist"
+    },
+    {
+      "parameters":{"jsCode":"const i=$input.first().json; return [{json:{...i,...i.stages_config[10]}}];"},
+      "type":"n8n-nodes-base.code","typeVersion":2,"position":[4280,0],"id":"41e0bb42-8656-5d1b-9616-5616b282ecfa","name":"11 Prepare — Fact + Production QA"
+    },
+    {
+      "parameters":{"workflowId":{"__rl":true,"value":"={{ $('Configure AquaPilot Flyer Run').item.json.agent_runner_workflow_id }}","mode":"id"},"workflowInputs":{"mappingMode":"defineBelow","value":{},"matchingColumns":[],"schema":[],"attemptToConvertTypes":false,"convertFieldsToString":true},"mode":"once","options":{"waitForSubWorkflow":true}},
+      "type":"n8n-nodes-base.executeWorkflow","typeVersion":1.3,"position":[4500,0],"id":"4eb6c59b-927b-5e5e-88c2-2f457150330e","name":"11 Run — Reality Checker"
+    },
+    {
+      "parameters": {
+        "jsCode": "const i=$input.first().json;\nconst stages=i.working_document?.stages||{};\nconst required=['campaign_lead','product_expert','audience_researcher','positioning_strategist','behavioral_marketing','conversion_copywriter','information_architect','art_director','graphic_designer','red_team_skeptical_buyer','fact_production_qa'];\nconst missing=required.filter(k=>!stages[k]);\nconst qa=stages.fact_production_qa?.result||{};\nreturn [{json:{run_id:i.run_id,project:'AquaPilot',artifact:'flyer',complete:missing.length===0,missing_stages:missing,qa_verdict:qa.verdict||'NOT_PROVIDED',production_package:{campaign_brief:stages.campaign_lead?.result,product_truth:stages.product_expert?.result,audience:stages.audience_researcher?.result,positioning:stages.positioning_strategist?.result,persuasion:stages.behavioral_marketing?.result,copy:stages.conversion_copywriter?.result,information_architecture:stages.information_architect?.result,art_direction:stages.art_director?.result,design_specification:stages.graphic_designer?.result,red_team:stages.red_team_skeptical_buyer?.result,qa:stages.fact_production_qa?.result},source_ref:i.source_ref}}];"
+      },
+      "type":"n8n-nodes-base.code","typeVersion":2,"position":[4780,0],"id":"8cc3f8a1-7462-58ee-bd08-601e2749138e","name":"Build Final Handoff Package"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’":{"main":[[{"node":"Configure AquaPilot Flyer Run","type":"main","index":0}]]},
+    "Configure AquaPilot Flyer Run":{"main":[[{"node":"01 Prepare — Campaign Lead","type":"main","index":0}]]},
+    "01 Prepare — Campaign Lead":{"main":[[{"node":"01 Run — Studio Producer","type":"main","index":0}]]},
+    "01 Run — Studio Producer":{"main":[[{"node":"02 Prepare — AquaPilot Product Expert","type":"main","index":0}]]},
+    "02 Prepare — AquaPilot Product Expert":{"main":[[{"node":"02 Run — Product Manager","type":"main","index":0}]]},
+    "02 Run — Product Manager":{"main":[[{"node":"03 Prepare — Audience Researcher","type":"main","index":0}]]},
+    "03 Prepare — Audience Researcher":{"main":[[{"node":"03 Run — UX Researcher","type":"main","index":0}]]},
+    "03 Run — UX Researcher":{"main":[[{"node":"04 Prepare — Positioning Strategist","type":"main","index":0}]]},
+    "04 Prepare — Positioning Strategist":{"main":[[{"node":"04 Run — Business Strategist","type":"main","index":0}]]},
+    "04 Run — Business Strategist":{"main":[[{"node":"05 Prepare — Behavioral Marketing Specialist","type":"main","index":0}]]},
+    "05 Prepare — Behavioral Marketing Specialist":{"main":[[{"node":"05 Run — Behavioral Nudge Engine","type":"main","index":0}]]},
+    "05 Run — Behavioral Nudge Engine":{"main":[[{"node":"06 Prepare — Conversion Copywriter","type":"main","index":0}]]},
+    "06 Prepare — Conversion Copywriter":{"main":[[{"node":"06 Run — Content Creator","type":"main","index":0}]]},
+    "06 Run — Content Creator":{"main":[[{"node":"07 Prepare — Information Architect","type":"main","index":0}]]},
+    "07 Prepare — Information Architect":{"main":[[{"node":"07 Run — UX Architect","type":"main","index":0}]]},
+    "07 Run — UX Architect":{"main":[[{"node":"08 Prepare — Art Director","type":"main","index":0}]]},
+    "08 Prepare — Art Director":{"main":[[{"node":"08 Run — Brand Guardian","type":"main","index":0}]]},
+    "08 Run — Brand Guardian":{"main":[[{"node":"09 Prepare — Graphic Designer","type":"main","index":0}]]},
+    "09 Prepare — Graphic Designer":{"main":[[{"node":"09 Run — Visual Storyteller","type":"main","index":0}]]},
+    "09 Run — Visual Storyteller":{"main":[[{"node":"10 Prepare — Red Team / Skeptical Buyer","type":"main","index":0}]]},
+    "10 Prepare — Red Team / Skeptical Buyer":{"main":[[{"node":"10 Run — Persona Walkthrough Specialist","type":"main","index":0}]]},
+    "10 Run — Persona Walkthrough Specialist":{"main":[[{"node":"11 Prepare — Fact + Production QA","type":"main","index":0}]]},
+    "11 Prepare — Fact + Production QA":{"main":[[{"node":"11 Run — Reality Checker","type":"main","index":0}]]},
+    "11 Run — Reality Checker":{"main":[[{"node":"Build Final Handoff Package","type":"main","index":0}]]}
+  },
+  "active": false,
+  "settings": {"executionOrder":"v1"},
+  "pinData": {},
+  "meta": {"templateCredsSetupCompleted":true}
+}
