@@ -1,0 +1,97 @@
+{
+  "name": "AquaPilot Flyer Harness",
+  "version": 1,
+  "source_repository": "CyberG3niusIT/agency-agents",
+  "source_ref": "1c9bee5e6a3557355820726b1dc4e2549d566654",
+  "source_ref_policy": "Pinned commit for reproducible prompts. Update intentionally after review.",
+  "stages": [
+    {
+      "order": 1,
+      "stage_id": "campaign_lead",
+      "logical_role": "Campaign Lead",
+      "agent": "Studio Producer",
+      "agent_path": "project-management/project-management-studio-producer.md",
+      "task": "Create the authoritative campaign brief for an AquaPilot flyer. Define the communication objective, decision target, desired reader action, constraints, success criteria, unresolved assumptions, and what every downstream specialist must preserve. Do not invent product facts. Return a JSON object with keys: summary, objective, audience_hypotheses, desired_action, constraints, success_criteria, open_questions, downstream_guardrails."
+    },
+    {
+      "order": 2,
+      "stage_id": "product_expert",
+      "logical_role": "AquaPilot Product Expert",
+      "agent": "Product Manager",
+      "agent_path": "product/product-manager.md",
+      "task": "Act as the product-truth layer. From project_context and the campaign brief only, extract what AquaPilot is, what problems it demonstrably addresses, features/capabilities that are actually supported, evidence available, claims that must not be made, and missing product facts. Separate facts from assumptions. Return JSON with keys: product_definition, verified_capabilities, customer_problems, evidence, prohibited_or_unverified_claims, missing_information, product_message_guardrails."
+    },
+    {
+      "order": 3,
+      "stage_id": "audience_researcher",
+      "logical_role": "Audience Researcher",
+      "agent": "UX Researcher",
+      "agent_path": "design/design-ux-researcher.md",
+      "task": "Analyze the intended flyer audience as a decision-making user population. Identify jobs-to-be-done, pains, motivations, objections, trust requirements, domain language, reading context, and likely attention constraints. Treat unsupported audience characteristics as hypotheses, not facts. Return JSON with keys: audience_segments, jobs_to_be_done, pains, motivations, objections, trust_requirements, language_patterns, attention_context, hypotheses_to_validate."
+    },
+    {
+      "order": 4,
+      "stage_id": "positioning_strategist",
+      "logical_role": "Positioning Strategist",
+      "agent": "Business Strategist",
+      "agent_path": "specialized/business-strategist.md",
+      "task": "Develop AquaPilot's flyer positioning from the verified product truth and audience analysis. Explicitly compare the message against the status quo and plausible alternatives without inventing competitor facts. Define the central value proposition, differentiation, category framing, proof hierarchy, and the single message that must survive a five-second scan. Return JSON with keys: category_frame, status_quo_problem, value_proposition, differentiation, proof_hierarchy, five_second_message, positioning_risks."
+    },
+    {
+      "order": 5,
+      "stage_id": "behavioral_marketing",
+      "logical_role": "Behavioral Marketing Specialist",
+      "agent": "Behavioral Nudge Engine",
+      "agent_path": "product/product-behavioral-nudge-engine.md",
+      "task": "Design an ethical persuasion framework for the flyer. Specify attention sequence, motivation triggers, uncertainty reduction, social/proof requirements, cognitive load limits, and CTA framing. Reject dark patterns, false urgency, fear manipulation, or unsupported authority cues. Return JSON with keys: attention_sequence, persuasion_principles, trust_builders, friction_reducers, cognitive_load_rules, cta_psychology, forbidden_tactics."
+    },
+    {
+      "order": 6,
+      "stage_id": "conversion_copywriter",
+      "logical_role": "Conversion Copywriter",
+      "agent": "Content Creator",
+      "agent_path": "marketing/marketing-content-creator.md",
+      "task": "Write the flyer copy architecture using only verified claims. Produce one primary headline, one subheadline, concise benefit blocks, proof/support copy, objection-handling microcopy, CTA, QR-code microcopy, and optional reverse-side copy. Prioritize clarity and conversion over slogans. Return JSON with keys: headline, subheadline, benefit_blocks, proof_copy, objection_microcopy, cta, qr_microcopy, reverse_side_copy, claims_used."
+    },
+    {
+      "order": 7,
+      "stage_id": "information_architect",
+      "logical_role": "Information Architect",
+      "agent": "UX Architect",
+      "agent_path": "design/design-ux-architect.md",
+      "task": "Transform the approved copy into a flyer information hierarchy. Specify front/back zones, scan order, grouping, progressive disclosure, hierarchy levels, whitespace requirements, CTA location, QR placement, and what must be omitted to prevent overload. Return JSON with keys: page_structure, scan_order, hierarchy_levels, content_groups, whitespace_rules, cta_placement, qr_placement, omit_or_defer."
+    },
+    {
+      "order": 8,
+      "stage_id": "art_director",
+      "logical_role": "Art Director",
+      "agent": "Brand Guardian",
+      "agent_path": "design/design-brand-guardian.md",
+      "task": "Define the visual direction for the AquaPilot flyer while preserving brand consistency. Specify visual concept, typography direction, color usage rules, imagery style, iconography, brand signals, credibility cues, and anti-patterns. Do not fabricate brand assets that are not supplied. Return JSON with keys: visual_concept, typography_direction, color_rules, imagery_direction, iconography, brand_signals, credibility_cues, anti_patterns."
+    },
+    {
+      "order": 9,
+      "stage_id": "graphic_designer",
+      "logical_role": "Graphic Designer",
+      "agent": "Visual Storyteller",
+      "agent_path": "design/design-visual-storyteller.md",
+      "task": "Convert the information architecture and art direction into a production-ready flyer design specification. Define precise layout zones, relative dimensions, visual emphasis, asset requirements, image crop guidance, icon usage, typographic scale relationships, and front/back composition. The result must be implementable in Canva, Adobe Express/InDesign, SVG, or print HTML. Return JSON with keys: format, front_layout, back_layout, layout_grid, visual_emphasis, asset_manifest, typography_scale, implementation_notes."
+    },
+    {
+      "order": 10,
+      "stage_id": "red_team_skeptical_buyer",
+      "logical_role": "Red Team / Skeptical Buyer",
+      "agent": "Persona Walkthrough Specialist",
+      "agent_path": "design/design-persona-walkthrough.md",
+      "task": "Attack the proposed flyer from the perspective of a skeptical real buyer. Simulate the first 1 second, 5 seconds, 15 seconds, and full-read reactions. Identify confusion, disbelief, weak claims, missing proof, visual friction, reasons to discard the flyer, and what would make the buyer act. Do not be polite. Return JSON with keys: one_second_reaction, five_second_reaction, fifteen_second_reaction, full_read_reaction, credibility_failures, conversion_blockers, required_changes, pass_condition."
+    },
+    {
+      "order": 11,
+      "stage_id": "fact_production_qa",
+      "logical_role": "Fact + Production QA",
+      "agent": "Reality Checker",
+      "agent_path": "testing/testing-reality-checker.md",
+      "task": "Perform the final release gate. Cross-check every proposed claim against project_context/product_truth, verify internal consistency across copy/layout, flag unsupported statements, check that the CTA and QR destination are defined, and assess whether the design specification is production-ready. Do not certify anything lacking evidence. Return JSON with keys: verdict, supported_claims, unsupported_claims, inconsistencies, missing_assets, production_blockers, required_fixes, release_checklist."
+    }
+  ]
+}
