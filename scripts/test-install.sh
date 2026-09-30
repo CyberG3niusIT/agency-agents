@@ -11,8 +11,8 @@
 #   * bash 3.2 + BSD userland, no jq, no GNU-only flags.
 #   * Never touches the real $HOME. Every case runs with HOME set to a fresh
 #     sandbox, so a broken default path writes into the sandbox, not your config.
-#   * Only exercises the two source tools (claude-code, copilot) so no case
-#     depends on convert.sh output being present or fresh.
+#   * Source-tool cases use claude-code/copilot directly; focused Codex and DSH
+#     cases exercise auto-conversion before installing into their sandboxes.
 #
 # Usage: ./scripts/test-install.sh [-v]
 #   -v  echo the installer's own output for failing cases
@@ -161,6 +161,20 @@ assert_eq 0 "$(find "$home" -type f | wc -l | tr -d ' ')" "--dry-run creates no 
 echo ""
 echo "destinations"
 
+home="$(sandbox aider-path)"
+project="$home/project"
+dest="$home/custom-dir"
+mkdir -p "$project"
+RUN_OUT="$(cd "$project" && HOME="$home" "$INSTALL" --no-interactive --tool aider --path "$dest" 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "Aider --path install exits 0"
+[[ -f "$dest/CONVENTIONS.md" ]] && pass "Aider --path installs into the selected directory" \
+  || fail "Aider --path installs into the selected directory"
+[[ ! -e "$project/CONVENTIONS.md" ]] && pass "Aider --path leaves the project root untouched" \
+  || fail "Aider --path leaves the project root untouched"
+printf 'My conventions\n' > "$dest/CONVENTIONS.md"
+RUN_OUT="$(cd "$project" && HOME="$home" "$INSTALL" --no-interactive --tool aider --path "$dest" 2>&1)"; RUN_STATUS=$?
+assert_eq 'My conventions' "$(cat "$dest/CONVENTIONS.md")" "Aider --path preserves an existing conventions file"
+
 home="$(sandbox default-dest)"
 run_install "$home" --tool claude-code
 assert_eq "$TOTAL_AGENTS" "$(count_md "$home/.claude/agents")" \
@@ -173,18 +187,27 @@ run_install "$home" --tool claude-code --path "$dest"
 assert_eq "$TOTAL_AGENTS" "$(count_md "$dest")" "--path overrides the default destination"
 assert_eq 0 "$(count_md "$home/.claude/agents")" "--path leaves the default destination empty"
 
+home="$(sandbox copilot-default)"
+run_install "$home" --tool copilot --agent "$FIRST_ENG_SLUG"
+assert_eq 1 "$(count_md "$home/.github/agents")" "Copilot defaults to the GitHub agents directory"
+assert_eq 1 "$(count_md "$home/.copilot/agents")" "Copilot also installs into the Copilot agents directory by default"
+
 # Env var override, and --path winning over it. COPILOT_AGENT_DIR is used here
 # because it unambiguously names the agents directory itself.
 home="$(sandbox env-override)"
 dest="$home/from-env"
 RUN_OUT="$(HOME="$home" COPILOT_AGENT_DIR="$dest" "$INSTALL" --no-interactive --tool copilot 2>&1)"
 assert_eq "$TOTAL_AGENTS" "$(count_md "$dest")" "COPILOT_AGENT_DIR overrides the default destination"
+assert_eq 0 "$(count_md "$home/.github/agents")" "COPILOT_AGENT_DIR leaves the GitHub default empty"
+assert_eq 0 "$(count_md "$home/.copilot/agents")" "COPILOT_AGENT_DIR leaves the Copilot default empty"
 
 home="$(sandbox env-vs-path)"
 RUN_OUT="$(HOME="$home" COPILOT_AGENT_DIR="$home/from-env" "$INSTALL" --no-interactive \
   --tool copilot --path "$home/from-flag" 2>&1)"
 assert_eq "$TOTAL_AGENTS" "$(count_md "$home/from-flag")" "--path wins over the env var"
 assert_eq 0 "$(count_md "$home/from-env")" "env var destination is unused when --path is given"
+assert_eq 0 "$(count_md "$home/.github/agents")" "Copilot --path leaves the GitHub default empty"
+assert_eq 0 "$(count_md "$home/.copilot/agents")" "Copilot --path leaves the Copilot default empty"
 
 # ---------------------------------------------------------------------------
 # 3b. CLAUDE_CONFIG_DIR is the config root, not the agents dir (issue #578)
@@ -217,6 +240,41 @@ assert_eq 0 "$RUN_STATUS" "pre-suffixed CLAUDE_CONFIG_DIR install exits 0"
 assert_eq "$TOTAL_AGENTS" "$(count_md "$cfg")" \
   "a CLAUDE_CONFIG_DIR already ending in /agents is used verbatim (no double-nesting)"
 
+# DSH_HOME is DeepSeek Harness's official config root. DSH_SKILLS_DIR remains
+# the more specific destination override and therefore wins when both are set.
+home="$(sandbox dsh-home)"
+dsh_home="$home/custom-dsh"
+RUN_OUT="$(HOME="$home" DSH_HOME="$dsh_home" "$INSTALL" --no-interactive \
+  --tool dsh --agent "$FIRST_ENG_SLUG" 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "DSH_HOME install exits 0"
+[[ -f "$dsh_home/skills/agency-$FIRST_ENG_SLUG/SKILL.md" ]] \
+  && pass "DSH_HOME installs skills into \$DSH_HOME/skills" \
+  || fail "DSH_HOME installs skills into \$DSH_HOME/skills"
+
+home="$(sandbox dsh-detect)"
+dsh_home="$home/custom-dsh"
+mkdir -p "$dsh_home"
+RUN_OUT="$(HOME="$home" DSH_HOME="$dsh_home" "$INSTALL" --no-interactive --dry-run 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "custom DSH_HOME detection exits 0"
+tools_line="$(printf '%s\n' "$RUN_OUT" | awk '/^  Tools:/ { print; exit }')"
+case " $tools_line " in
+  *" dsh "*) pass "custom DSH_HOME is detected without a dsh binary" ;;
+  *) fail "custom DSH_HOME is detected without a dsh binary" ;;
+esac
+
+home="$(sandbox dsh-skills-dir)"
+dsh_home="$home/custom-dsh"
+dsh_skills="$home/project/.dsh/skills"
+RUN_OUT="$(HOME="$home" DSH_HOME="$dsh_home" DSH_SKILLS_DIR="$dsh_skills" "$INSTALL" \
+  --no-interactive --no-convert --tool dsh --agent "$FIRST_ENG_SLUG" 2>&1)"; RUN_STATUS=$?
+assert_eq 0 "$RUN_STATUS" "DSH_SKILLS_DIR install exits 0"
+[[ -f "$dsh_skills/agency-$FIRST_ENG_SLUG/SKILL.md" ]] \
+  && pass "DSH_SKILLS_DIR overrides DSH_HOME" \
+  || fail "DSH_SKILLS_DIR overrides DSH_HOME"
+[[ ! -e "$dsh_home/skills/agency-$FIRST_ENG_SLUG/SKILL.md" ]] \
+  && pass "DSH_SKILLS_DIR leaves DSH_HOME unused" \
+  || fail "DSH_SKILLS_DIR leaves DSH_HOME unused"
+
 # ---------------------------------------------------------------------------
 # 4. Paths with spaces (regression: word-splitting in the install loop)
 # ---------------------------------------------------------------------------
@@ -229,6 +287,22 @@ run_install "$home" --tool claude-code --path "$dest"
 assert_eq "$TOTAL_AGENTS" "$(count_md "$dest")" "installs into a path containing spaces"
 assert_eq 0 "$(find "$home" -maxdepth 1 -name 'My' -o -maxdepth 1 -name 'Agents' | wc -l | tr -d ' ')" \
   "a spaced path is not split into separate directories"
+
+# Windsurf's --path is a directory override, just like Aider's. A caller may
+# run this from another project, so installing into PWD silently edits the
+# wrong project's .windsurfrules.
+home="$(sandbox windsurf-path)"
+work="$home/current project"
+dest="$home/target project/rules"
+mkdir -p "$work"
+(cd "$work" && HOME="$home" bash "$INSTALL" --no-interactive --tool windsurf --path "$dest" > "$home/windsurf.log" 2>&1)
+assert_eq 0 "$?" "Windsurf --path install exits successfully"
+[[ -f "$dest/.windsurfrules" ]] \
+  && pass "Windsurf --path installs into the requested directory" \
+  || fail "Windsurf --path installs into the requested directory"
+[[ ! -e "$work/.windsurfrules" ]] \
+  && pass "Windsurf --path leaves the current project alone" \
+  || fail "Windsurf --path leaves the current project alone"
 
 # ---------------------------------------------------------------------------
 # 4b. Parallel workers get their arguments intact (PR #755)
@@ -337,6 +411,34 @@ run_install "$home" --tool claude-code --division engineering --path "$dest"
 first=$(count_md "$dest")
 run_install "$home" --tool claude-code --division engineering --path "$dest"
 assert_eq "$first" "$(count_md "$dest")" "re-running installs the same set, not duplicates"
+
+# A project-owned symlink with an agent's filename must not redirect a copy
+# into another file outside the selected destination.
+home="$(sandbox symlink-destination)"
+dest="$home/dest"
+mkdir -p "$dest"
+printf 'KEEP THIS FILE\n' > "$home/sentinel"
+ln -s "$home/sentinel" "$dest/$(basename "$FIRST_ENG_FILE")"
+SECOND_ENG_FILE="$(agent_files_in engineering | awk 'NR==2')"
+SECOND_ENG_SLUG="$(agent_slug "$SECOND_ENG_FILE")"
+run_install "$home" --tool claude-code --no-convert --agent "$FIRST_ENG_SLUG,$SECOND_ENG_SLUG" --path "$dest"
+assert_eq 0 "$RUN_STATUS" "a foreign agent-file symlink is skipped, not fatal"
+assert_eq 'KEEP THIS FILE' "$(cat "$home/sentinel")" "symlink target is not overwritten"
+assert_eq true "$([[ -L "$dest/$(basename "$FIRST_ENG_FILE")" ]] && echo true || echo false)" "the foreign symlink itself is left in place"
+assert_eq true "$([[ -f "$dest/$(basename "$SECOND_ENG_FILE")" && ! -L "$dest/$(basename "$SECOND_ENG_FILE")" ]] && echo true || echo false)" "the rest of the selection still installs"
+assert_eq true "$(grep -q 'Not installed: 1 file' <<<"$RUN_OUT" && echo true || echo false)" "the summary reports the skipped file"
+
+# Switching from --link to a copy replaces our own links, and never writes
+# through them into the clone's source files.
+home="$(sandbox link-then-copy)"
+dest="$home/dest"
+src_sum="$(cksum < "$FIRST_ENG_FILE")"
+run_install "$home" --tool claude-code --no-convert --agent "$FIRST_ENG_SLUG" --path "$dest" --link
+assert_eq true "$([[ -L "$dest/$(basename "$FIRST_ENG_FILE")" ]] && echo true || echo false)" "--link installs a symlink"
+run_install "$home" --tool claude-code --no-convert --agent "$FIRST_ENG_SLUG" --path "$dest"
+assert_eq 0 "$RUN_STATUS" "a copy install over our own --link install succeeds"
+assert_eq true "$([[ -f "$dest/$(basename "$FIRST_ENG_FILE")" && ! -L "$dest/$(basename "$FIRST_ENG_FILE")" ]] && echo true || echo false)" "our own link is replaced by a real copy"
+assert_eq "$src_sum" "$(cksum < "$FIRST_ENG_FILE")" "the clone's source file is unchanged"
 
 # ---------------------------------------------------------------------------
 echo ""

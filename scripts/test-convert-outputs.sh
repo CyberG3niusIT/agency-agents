@@ -97,7 +97,7 @@ N="$(wc -l < "$SOURCES" | tr -d ' ')"
 [[ "$N" -gt 0 ]] || { echo "ERROR: no source agents found." >&2; exit 2; }
 
 # --- generate: every converted tool, sequentially, into a scratch dir ---------
-TOOLS="antigravity gemini-cli opencode cursor aider windsurf openclaw qwen zcode kimi codex osaurus hermes vibe"
+TOOLS="antigravity gemini-cli opencode cursor aider windsurf openclaw qwen zcode kimi codex osaurus hermes vibe dsh"
 if [[ -z "$OUT" ]]; then
   OUT="$TMP/out"; mkdir -p "$OUT"
   for t in $TOOLS; do
@@ -142,6 +142,7 @@ def check(cond, msg): (ok if cond else bad)(msg)
 SPEC = {
     "antigravity": ("agency-*/SKILL.md", "yaml-fm"),
     "osaurus":     ("agency-*/SKILL.md", "yaml-fm"),
+    "dsh":         ("agency-*/SKILL.md", "yaml-fm"),
     "gemini-cli":  ("agents/*.md",       "yaml-fm"),
     "opencode":    ("agents/*.md",       "yaml-fm"),
     "qwen":        ("agents/*.md",       "yaml-fm"),
@@ -173,9 +174,12 @@ def find_desc(obj):
     return None
 
 def frontmatter(text):
-    if not text.startswith("---"): raise ValueError("no frontmatter")
-    parts = text.split("\n---", 1)
-    return yaml.safe_load(parts[0][3:])
+    lines = text.splitlines()
+    if not lines or lines[0] != "---": raise ValueError("no frontmatter")
+    for end in range(1, len(lines)):
+        if lines[end] == "---":
+            return yaml.safe_load("\n".join(lines[1:end]))
+    raise ValueError("missing frontmatter closing ---")
 
 def parsed_desc(path, fmt):
     text = open(path, encoding="utf-8").read()
@@ -198,8 +202,10 @@ src_bad = []
 for slug, (_gf_desc, _gf_name, path) in list(src.items()):
     try:
         data = frontmatter(open(os.path.join(R, path), encoding="utf-8").read())
-        assert isinstance(data, dict) and isinstance(data.get("name"), str) \
-            and isinstance(data.get("description"), str), "missing name/description"
+        assert isinstance(data, dict) and all(
+            isinstance(data.get(field), str) and data[field].strip()
+            for field in ("name", "description", "color")
+        ), "missing or empty name/description/color"
         assert data["description"][:1] not in ('"', "'"), "description starts with a quote character"
         src[slug] = (data["description"], data["name"], path)
     except Exception as e:
@@ -288,6 +294,35 @@ for tool in TOOLS:
     report(tool, bad_parse, bad_trip,
            "parse and round-trip" if fmt in ("yaml-fm", "toml") else "parse, carry their slug, and have their prose file")
 
+# --- Layer A (color): a grey agent should be a grey agent ---------------------
+# resolve_opencode_color() maps a name it does not know to #6B7280 and says
+# nothing, so a typo or an unlisted name (`slate`, `navy`) reaches users as a
+# deliberate-looking grey. Grey is a real choice for the agents that ask for it,
+# so the check is not "never grey" — it is "grey only when the source said so".
+GREY = "#6B7280"
+grey_names = {"gray", "grey", "#6b7280", "6b7280"}
+colour_bad = 0
+for f in sorted(glob.glob(os.path.join(OUT, "opencode", "agents", "*.md"))):
+    slug = os.path.splitext(os.path.basename(f))[0]
+    entry = src.get(slug)
+    if entry is None:
+        continue
+    try:
+        emitted = str(frontmatter(open(f, encoding="utf-8").read()).get("color", "")).strip()
+        source_color = str(frontmatter(open(os.path.join(R, entry[2]), encoding="utf-8").read())
+                           .get("color", "")).strip().lower()
+    except Exception:
+        continue   # the strict-parse pass above already reported this
+    if emitted.upper() == GREY and source_color not in grey_names:
+        colour_bad += 1
+        if colour_bad <= 3:
+            bad(f"opencode: {slug} asked for color {source_color!r} and got {GREY} — "
+                f"resolve_opencode_color() does not know that name")
+if colour_bad > 3:
+    bad(f"opencode: ...and {colour_bad-3} more colors silently replaced with grey")
+elif not colour_bad:
+    ok(f"opencode: every agent color resolves; none fell through to {GREY} by accident")
+
 # --- Layer A (split integrity): a source fenced block must survive whole -------
 # openclaw is the one tool that splits a single agent body across two files, at
 # `## ` headings: SOUL.md (persona) / AGENTS.md (operations). A heading inside a
@@ -301,7 +336,7 @@ def body_lines(text):
     """Mirror lib.sh's get_body, including `$(...)`'s trailing-newline strip."""
     out, fm = [], 0
     for line in text.split("\n"):
-        if line == "---":
+        if fm < 2 and line == "---":
             fm += 1
             continue
         if fm >= 2:
@@ -352,6 +387,31 @@ if split_bad:
     if split_bad > 3: bad(f"openclaw: ...and {split_bad-3} more torn fenced blocks")
 else:
     ok(f"openclaw: all {N} agents keep every source fenced block whole in one output file")
+
+# --- Layer A (context budget): the Aider index has to stay an index ----------
+# Aider keeps a conventions file in context for the whole session. Inlining the
+# agent bodies made CONVENTIONS.md 3.8 million characters, which no model will
+# take, so it carries one index entry per agent instead: description plus the
+# path to the real file. Two things have to hold for that to be worth anything —
+# the file stays small enough to load, and every path it prints resolves.
+AIDER_INDEX_CEILING = 250_000
+aider_index = os.path.join(OUT, "aider", "CONVENTIONS.md")
+if os.path.isfile(aider_index):
+    text = open(aider_index, encoding="utf-8").read()
+    if len(text) > AIDER_INDEX_CEILING:
+        bad(f"aider: CONVENTIONS.md is {len(text):,} characters — it is loaded into "
+            f"every request, so it has to stay an index, not the agents themselves")
+    paths = re.findall(r"^Full instructions: (.+)$", text, re.M)
+    dangling = sorted({p for p in paths if not os.path.isfile(os.path.join(R, p))})
+    if len(paths) != N:
+        bad(f"aider: CONVENTIONS.md points at {len(paths)} agent files, roster has {N}")
+    elif dangling:
+        for d in dangling[:3]:
+            bad(f"aider: CONVENTIONS.md points at a file that does not exist: {d}")
+        if len(dangling) > 3:
+            bad(f"aider: ...and {len(dangling)-3} more dangling paths")
+    elif len(text) <= AIDER_INDEX_CEILING:
+        ok(f"aider: index is {len(text):,} characters and all {N} agent paths resolve")
 
 # --- Layer A (app-facing): every SOURCE frontmatter strict-parsed above -------
 for m in src_bad[:5]: bad(m)
@@ -443,8 +503,11 @@ def drift_report(old_text):
     tools   = sorted(key for (k, key), h in cur.items() if k != "agent" and old.get((k, key)) != h)
     return changed, added, removed, tools
 
-if UPDATE:
+# Never make broken or incomplete generated output the new baseline.
+if UPDATE and not fails:
     open(MANIFEST, "w", newline="\n").write(new); ok(f"manifest written: {os.path.relpath(MANIFEST, R)}")
+elif UPDATE:
+    print("  SKIP manifest update: generated outputs failed validation")
 elif not os.path.exists(MANIFEST):
     bad(f"manifest missing: run with --update to create {os.path.relpath(MANIFEST, R)}")
 else:
